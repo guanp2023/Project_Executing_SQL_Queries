@@ -1,0 +1,81 @@
+Exercise 1: List all stations in an alphabetical order. Output should contain StationId, StationName.
+
+SELECT *
+FROM dimstation ds
+ORDER BY ds.StationName
+
+
+Exercise 2: List all trips that collected waste > 40. Output should contain TripId, Waste.
+
+SELECT ft.TripId, ft.Waste
+FROM facttrips ft
+WHERE ft.Waste > 40
+
+
+Exercise 3: List average waste collected for each date. Output should contain DateId, average waste.
+
+SELECT ft.DateId, AVG(ft.Waste) AS 'average waste'
+FROM facttrips ft
+GROUP BY ft.DateId
+
+
+Exercise 4: List truck Names with their count. Output should contain TruckName, count
+
+SELECT dt.TruckName, COUNT(dt.TruckName) AS count
+FROM dimtruck dt
+GROUP BY dt.TruckName
+
+
+Exercise 5: List City with total waste collected. Output should contain CityName, total_Waste
+
+SELECT ds.StationName AS CityName, SUM(ft.Waste) AS total_Waste
+FROM facttrips ft
+INNER JOIN dimstation ds
+ON ft.StationId = ds.StationId
+GROUP BY ds.StationName
+
+
+Exercise 6: List minimum waste collected per quarter in 2019. Output should contain QuarterName, minimum waste.
+
+SELECT dd.Quarter AS QuarterName, Min(ft.Waste) AS minimum_waste
+FROM facttrips ft
+INNER JOIN dimdate dd
+ON ft.DateId = dd.DateId
+WHERE dd.Year = 2019
+GROUP BY dd.Quarter
+
+
+Exercise 7: List maximum waste collected in Q1 in Sao Paulo. Output should contain QuarterName, City, maximum Waste.
+
+SELECT dd.QuarterName, ds.StationName AS City, MAX(ft.Waste) AS maximum_Waste
+FROM facttrips ft
+INNER JOIN dimstation ds
+ON ft.StationId = ds.StationId
+INNER JOIN dimdate dd
+ON ft.DateId = dd.DateId
+WHERE dd.QuarterName = 'Q1' AND ds.StationName = 'Sao Paulo'
+
+
+Exercise 8: List the days of the week results in the highest average waste collected by Volvo trucks. Output should contain WeekDayName, TruckName, avg_Waste.
+
+SELECT dd.WeekdayName, dt.TruckName, AVG(ft.Waste) AS avg_Waste
+FROM facttrips ft
+INNER JOIN dimdate dd
+ON ft.DateId = dd.DateId
+INNER JOIN dimtruck dt
+ON ft.TruckId = dt.TruckId
+WHERE dt.TruckName = 'Volvo'
+GROUP BY dd.WeekdayName
+ORDER BY AVG(ft.Waste) DESC
+LIMIT 1
+
+
+Exercise 9: List the dates when each city collected its maximum Waste. Output should contain city, date, maximum Waste.
+
+SELECT ds.StationName AS city, dd.date, ft.Waste AS Maximum_Waste
+FROM facttrips ft
+INNER JOIN dimstation ds
+ON ft.StationId = ds.StationId
+INNER JOIN dimdate dd
+ON ft.DateId = dd.DateId
+WHERE ft.Waste = (SELECT MAX(ft.Waste) FROM facttrips ft)
